@@ -1,6 +1,6 @@
 # MVP
 
-- [ ] Buscar jogador
+- [X] Buscar jogador
 - [ ] Buscar partidas
 - [ ] Mostrar histórico
 - [ ] Calcular Win Rate
