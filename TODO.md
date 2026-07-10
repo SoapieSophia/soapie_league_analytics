@@ -1,7 +1,7 @@
 # MVP
 
 - [X] Buscar jogador
-- [ ] Buscar partidas
+- [X] Buscar partidas
 - [ ] Mostrar histórico
 - [ ] Calcular Win Rate
 - [ ] Calcular KDA

@@ -30,13 +30,37 @@ public class RiotApiService {
                 .encode()
                 .toUri();
 
-        AccountResponse resposta = restClient.get()
+        AccountResponse playerAccount = restClient.get()
                 .uri(uri)
                 .header("X-Riot-Token", apiKey)
                 .retrieve()
                 .body(AccountResponse.class);
 
-        return resposta;
+        return playerAccount;
 
+    }
+
+    public String[] buscarPartidas(String puuid, int count){
+        return buscarPartidas(puuid, 0, count);
+    }
+
+    public String[] buscarPartidas(String puuid, int start, int count){
+
+        URI uri = UriComponentsBuilder
+                .fromUriString(urlBase)
+                .path("/lol/match/v5/matches/by-puuid/{puuid}/ids")
+                .queryParam("start", start)
+                .queryParam("count", count)
+                .buildAndExpand(puuid)
+                .encode()
+                .toUri();
+
+        String[] matchIds = restClient.get()
+                .uri(uri)
+                .header("X-Riot-Token", apiKey)
+                .retrieve()
+                .body(String[].class);
+
+        return matchIds;
     }
 }
