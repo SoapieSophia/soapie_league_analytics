@@ -33,3 +33,12 @@
 - Criei um endpoint na aplicação Sping Boot que recebe parâmetros através de `@RequestParam`, permitindo que o Riot ID seja informado pela requisição em vez de ficar fixo no código. Acredito que, por definição, o projeto acaba de se tornar uma aplicação backend.
 - Entendi melhor a separação de responsabilidades entre Controller e Service, percebendo que o Controller deve receber requisições e delegar a lógica para os serviços responsáveis.
 - Completei o fluxo de consulta de partidas: informar um Riot ID → buscar PUUID → consultar histórico de partidas → retornar os Match IDs encontrados.
+
+## Dia 6
+- Implementei a consulta de detalhes de uma partida usando um Match ID, integrando um terceiro endpoint da Riot API ao projeto.
+- Aprendi a lidar com respostas JSON contendo objetos aninhados e arrays de participantes, e comecei a criar DTOs para representar dados específicos da resposta.
+- Utilizei o PUUID do jogador para identificar sua participação dentro dos 10 participantes de uma partida, entendendo como relacionar dados vindos de diferentes endpoints da Riot API.
+- Completei o fluxo de consulta de informações de uma partida: informar um Riot ID → buscar PUUID → consultar histórico de partidas → obter detalhes da partida → localizar os dados do jogador.
+- Refatorei a arquitetura da aplicação criando um `AnalyticsService`, separando a lógica de manipulação de dados das chamadas externas realizadas pelo `RiotApiService`.
+- Separei os controllers em `RiotController`, responsável pelas funcionalidades da aplicação usando o `AnalyticsService`, e `RiotTestController`, responsável por testes individuais de chamadas da Riot API.
+- Entendi melhor a divisão de responsabilidades em uma aplicação Spring Boot: Controllers recebem requisições, Services coordenam regras da aplicação e classes de integração lidam com comunicação externa.

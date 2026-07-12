@@ -1,6 +1,7 @@
 package io.github.soapiesophia.soapieleagueanalytics.service;
 
 import io.github.soapiesophia.soapieleagueanalytics.dto.AccountResponse;
+import io.github.soapiesophia.soapieleagueanalytics.dto.MatchResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -9,7 +10,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 public class RiotApiService {
-//Buscar jogador com base no nome e tagline
     private final RestClient restClient;
 
     @Value("${riot.api.url.base}")
@@ -62,5 +62,22 @@ public class RiotApiService {
                 .body(String[].class);
 
         return matchIds;
+    }
+
+    public MatchResponse infoPartida(String matchId){
+        URI uri = UriComponentsBuilder
+                .fromUriString(urlBase)
+                .path("/lol/match/v5/matches/{matchId}")
+                .buildAndExpand(matchId)
+                .encode()
+                .toUri();
+
+        MatchResponse matchInfo = restClient.get()
+                .uri(uri)
+                .header("X-Riot-Token", apiKey)
+                .retrieve()
+                .body(MatchResponse.class);
+
+        return matchInfo;
     }
 }
