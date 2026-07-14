@@ -42,3 +42,11 @@
 - Refatorei a arquitetura da aplicação criando um `AnalyticsService`, separando a lógica de manipulação de dados das chamadas externas realizadas pelo `RiotApiService`.
 - Separei os controllers em `RiotController`, responsável pelas funcionalidades da aplicação usando o `AnalyticsService`, e `RiotTestController`, responsável por testes individuais de chamadas da Riot API.
 - Entendi melhor a divisão de responsabilidades em uma aplicação Spring Boot: Controllers recebem requisições, Services coordenam regras da aplicação e classes de integração lidam com comunicação externa.
+
+## Dia 7
+- Criei o DTO (`HistoryEntry`) para representar o histórico de partidas, deixando de expor diretamente os objetos retornados pela Riot API.
+- Implementei a conversão dos dados da Riot API para o `HistoryEntry`, combinando informações do participante e da partida em um único objeto voltado ao consumo da aplicação.
+- Desenvolvi a lógica para consultar múltiplas partidas recentes, localizar o jogador em cada uma delas através do PUUID e gerar um histórico contendo informações relevantes de cada partida.
+- Aprendi a transformar dados brutos em informações mais legíveis, agrupando kills, deaths e assists em um único campo `kda` e organizando a ordem dos atributos do JSON usando `@JsonPropertyOrder`.
+- Entendi melhor a diferença entre DTOs de integração, que representam respostas da Riot API, e DTOs da aplicação, que representam exatamente os dados que desejo expor ao cliente.
+- Completei a primeira versão funcional do histórico de partidas: informar um Riot ID → buscar PUUID → consultar as partidas recentes → obter os detalhes de cada partida → extrair os dados do jogador → retornar um histórico estruturado.

@@ -12,13 +12,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class RiotTestController {
     private final RiotApiService service;
 
-    public RiotTestController(RiotApiService service){
+    public RiotTestController(RiotApiService service) {
         this.service = service;
     }
 
     @GetMapping("/test/BuscarJogador")
     public AccountResponse testarBuscarJogador() {
-        return service.buscarJogador("Sophia Coelhinha","owner");
+        return service.buscarJogador("Sophia Coelhinha", "owner");
     }
 
     @GetMapping("/test/BuscarPartidas")

@@ -64,7 +64,7 @@ public class RiotApiService {
         return matchIds;
     }
 
-    public MatchResponse infoPartida(String matchId){
+    public MatchResponse respostaPartida(String matchId){
         URI uri = UriComponentsBuilder
                 .fromUriString(urlBase)
                 .path("/lol/match/v5/matches/{matchId}")
@@ -72,12 +72,12 @@ public class RiotApiService {
                 .encode()
                 .toUri();
 
-        MatchResponse matchInfo = restClient.get()
+        MatchResponse matchResponse = restClient.get()
                 .uri(uri)
                 .header("X-Riot-Token", apiKey)
                 .retrieve()
                 .body(MatchResponse.class);
 
-        return matchInfo;
+        return matchResponse;
     }
 }

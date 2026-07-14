@@ -2,7 +2,7 @@
 
 - [X] Buscar jogador
 - [X] Buscar partidas
-- [ ] Mostrar histórico
+- [X] Mostrar histórico
 - [ ] Calcular Win Rate
 - [ ] Calcular KDA
 
