@@ -2,8 +2,10 @@ package io.github.soapiesophia.soapieleagueanalytics.service;
 
 import io.github.soapiesophia.soapieleagueanalytics.dto.AccountResponse;
 import io.github.soapiesophia.soapieleagueanalytics.dto.MatchResponse;
+import io.github.soapiesophia.soapieleagueanalytics.exception.RiotRateLimitException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 import java.net.URI;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -65,19 +67,23 @@ public class RiotApiService {
     }
 
     public MatchResponse respostaPartida(String matchId){
-        URI uri = UriComponentsBuilder
-                .fromUriString(urlBase)
-                .path("/lol/match/v5/matches/{matchId}")
-                .buildAndExpand(matchId)
-                .encode()
-                .toUri();
+        try {
+            URI uri = UriComponentsBuilder
+                    .fromUriString(urlBase)
+                    .path("/lol/match/v5/matches/{matchId}")
+                    .buildAndExpand(matchId)
+                    .encode()
+                    .toUri();
 
-        MatchResponse matchResponse = restClient.get()
-                .uri(uri)
-                .header("X-Riot-Token", apiKey)
-                .retrieve()
-                .body(MatchResponse.class);
+            MatchResponse matchResponse = restClient.get()
+                    .uri(uri)
+                    .header("X-Riot-Token", apiKey)
+                    .retrieve()
+                    .body(MatchResponse.class);
 
-        return matchResponse;
+            return matchResponse;
+        } catch (HttpClientErrorException.TooManyRequests e) {
+            throw new RiotRateLimitException();
+        }
     }
 }

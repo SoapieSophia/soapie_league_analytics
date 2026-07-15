@@ -50,3 +50,11 @@
 - Aprendi a transformar dados brutos em informações mais legíveis, agrupando kills, deaths e assists em um único campo `kda` e organizando a ordem dos atributos do JSON usando `@JsonPropertyOrder`.
 - Entendi melhor a diferença entre DTOs de integração, que representam respostas da Riot API, e DTOs da aplicação, que representam exatamente os dados que desejo expor ao cliente.
 - Completei a primeira versão funcional do histórico de partidas: informar um Riot ID → buscar PUUID → consultar as partidas recentes → obter os detalhes de cada partida → extrair os dados do jogador → retornar um histórico estruturado.
+
+## Dia 8
+- Explorei uma extensão da funcionalidade de histórico de partidas, implementando uma busca por partidas que contenham um campeão específico, independentemente de qual jogador da partida o tenha utilizado.
+- Aprendi a lidar com buscas de tamanho variável, percebendo que a quantidade de partidas analisadas pode ser diferente da quantidade de resultados encontrados quando existem filtros aplicados.
+- Refatorei o método de busca para utilizar `List<HistoryEntry>` ao invés de arrays fixos, eliminando posições vazias no retorno quando não há resultados suficientes.
+- Adicionei um limite máximo de partidas analisadas para evitar excesso de requisições e lidar melhor com as limitações da Development API Key da Riot.
+- Investiguei o erro HTTP 429 (Too Many Requests) e implementei uma estratégia inicial de tratamento para informar ao usuário quando o limite de requisições da API for atingido.
+- Aprendi melhor como equilibrar funcionalidades desejadas com restrições de APIs externas, considerando desempenho, limites de uso e experiência do usuário.

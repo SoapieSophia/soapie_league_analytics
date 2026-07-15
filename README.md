@@ -17,3 +17,7 @@ Projeto desenvolvido para aprender desenvolvimento backend em Java utilizando a 
 - Calcular Win Rate
 - Calcular KDA médio
 - Mostrar campeões mais utilizados
+
+## Restrições
+
+- A busca de partidas é limitada a 100 registros por consulta devido aos limites de requisições impostos pela Development API Key da Riot.

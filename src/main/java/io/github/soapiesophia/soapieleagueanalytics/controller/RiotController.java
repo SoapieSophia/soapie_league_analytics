@@ -8,17 +8,29 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 public class RiotController {
     public final AnalyticsService analyticsService;
 
     public RiotController(AnalyticsService analyticsService) {this.analyticsService = analyticsService;}
 
-    @GetMapping("/info")
-    public HistoryEntry[] infoPartida(
+    @GetMapping("/history")
+    public HistoryEntry[] partidas(
             @RequestParam String nome,
             @RequestParam String tag,
             @RequestParam int numero){
         return analyticsService.buscarEstatisticasPartidas(nome, tag, numero);
+    }
+
+    @GetMapping("/history/champion")
+    public List<HistoryEntry> partidasPorCampeao(
+            @RequestParam String nome,
+            @RequestParam String tag,
+            @RequestParam int start,
+            @RequestParam int numero,
+            @RequestParam String campeao){
+        return analyticsService.buscarPartidasPorCampeaoPresente(nome,tag,start,numero,campeao);
     }
 }
