@@ -58,6 +58,18 @@ public class HistoryEntry {
         return kills + "/" + deaths + "/" + assists;
     }
 
+    public float getKdaScore() {
+        if (deaths == 0) {
+            return kills + assists;
+        }
+        return (kills + assists) / (float) deaths;
+    }
+
+    public float getKdaScoreFormatted() {
+        float kda = getKdaScore();
+        return Math.round(kda * 100) / 100f;
+    }
+
     public void setChampionName(String championName) {
         this.championName = championName;
     }

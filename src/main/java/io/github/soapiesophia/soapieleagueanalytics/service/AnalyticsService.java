@@ -1,10 +1,13 @@
 package io.github.soapiesophia.soapieleagueanalytics.service;
 
 import io.github.soapiesophia.soapieleagueanalytics.dto.*;
+import jakarta.servlet.http.Part;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class AnalyticsService {
@@ -21,7 +24,7 @@ public class AnalyticsService {
         return buscarDadosPartidas(nome, tag, TAMANHO_LOTE);
     }
 
-    public HistoryEntry criarHistoryEntry(Participant participant, MatchInfo info){
+    private HistoryEntry criarHistoryEntry(Participant participant, MatchInfo info){
         HistoryEntry entry = new HistoryEntry();
         entry.setChampionName(participant.getChampionName());
         entry.setKills(participant.getKills());
@@ -34,25 +37,27 @@ public class AnalyticsService {
         return entry;
     }
 
+    private Participant buscarParticipante(MatchResponse partida, String puuid){
+        for (Participant participante : partida.getInfo().getParticipants()){
+            if (participante.getPuuid().equals(puuid)){
+                return participante;
+            }
+        }
+        return null;
+    }
+
     public HistoryEntry[] buscarDadosPartidas(String nome, String tag, int numeroPartidas){
-        Participant target = null;
         String targetPuuid = riotApiService.buscarJogador(nome, tag).getPuuid();
         String[] partidas = riotApiService.buscarPartidas(targetPuuid, numeroPartidas);
         HistoryEntry[] historico = new HistoryEntry[partidas.length];
         // Método auxiliar de iterar por partidas?
         for (int i = 0; i < partidas.length; i++){
-            target = null;
             MatchResponse matchResponse = riotApiService.respostaPartida(partidas[i]);
             MatchInfo matchInfo = matchResponse.getInfo();
-            Participant[] participantes = matchResponse.getInfo().getParticipants();
-            // Método auxiliar de iterar por players numa partida?
-            for (int ii = 0; ii < participantes.length; ii++ ){
-                if (participantes[ii].getPuuid().equals(targetPuuid)) {
-                    target = participantes[ii];
-                    break;
-                }
+            Participant target = buscarParticipante(matchResponse, targetPuuid);
+            if (target != null) {
+                historico[i] = criarHistoryEntry(target, matchInfo);
             }
-            historico[i] = criarHistoryEntry(target, matchInfo);
         }
         return historico;
     }
@@ -99,30 +104,105 @@ public class AnalyticsService {
     public PlayerStatistics calcularEstatisticas(String nome, String tag, int numeroPartidas){
         PlayerStatistics playerStatistics = new PlayerStatistics();
         HistoryEntry[] historico = buscarDadosPartidas(nome, tag, numeroPartidas);
+        HistoryEntry melhorPartida = null;
+        HistoryEntry piorPartida = null;
+        Map<String, Integer> championsGames = new HashMap<>();
+        Map<String, Integer> championsWins = new HashMap<>();
         int vitorias = 0;
         int derrotas = 0;
-        float kills = 0;
-        float deaths = 0;
-        float assists = 0;
+        int kills = 0;
+        int deaths = 0;
+        int assists = 0;
+        float melhorKda = Float.NEGATIVE_INFINITY;
+        float piorKda = Float.POSITIVE_INFINITY;
+        int winStreakCurrent = 0;
+        int winStreakBest = 0;
         for (HistoryEntry partida : historico){
             if (partida.isWin()){
                 vitorias++;
+                winStreakCurrent++;
+                if (winStreakCurrent > winStreakBest){
+                    winStreakBest = winStreakCurrent;
+                }
             }
             else{
                 derrotas++;
+                winStreakCurrent = 0;
             }
             kills += partida.getKills();
             deaths += partida.getDeaths();
             assists += partida.getAssists();
+
+            float kda = partida.getKdaScore();
+            if (kda > melhorKda){
+                melhorKda = kda;
+                melhorPartida = partida;
+            }
+            if (kda < piorKda &&
+                    (
+                            partida.getKills() != 0 ||
+                            partida.getDeaths() != 0 ||
+                            partida.getAssists() != 0)){
+                piorKda = kda;
+                piorPartida = partida;
+            }
+
+            String champion = partida.getChampionName();
+
+            if (championsGames.containsKey(champion)){
+                championsGames.put(champion, championsGames.get(champion) + 1);
+            }
+            else {
+                championsGames.put(champion, 1);
+            }
+
+            if (championsWins.containsKey(champion) && partida.isWin()){
+                championsWins.put(champion, championsWins.get(champion) + 1);
+            } else if (!championsWins.containsKey(champion) && partida.isWin()) {
+                championsWins.put(champion, 1);
+            } else if (!championsWins.containsKey(champion)){
+                championsWins.put(champion, 0);
+            }
         }
+
+        String campeaoMaisJogado = null;
+        int campeaoMaisJogadoQuantidade = 0;
+        int campeaoMaisJogadoVitorias = 0;
+
+        for (Map.Entry<String, Integer> entry : championsGames.entrySet()){
+
+            if (entry.getValue() > campeaoMaisJogadoQuantidade){
+                campeaoMaisJogadoQuantidade = entry.getValue();
+                campeaoMaisJogado = entry.getKey();
+            }
+
+        }
+
+        if (campeaoMaisJogado != null) {
+            campeaoMaisJogadoVitorias = championsWins.get(campeaoMaisJogado);
+        }
+
         //region Sets Player Statistics
         playerStatistics.setPartidasAnalisadas(historico.length);
         playerStatistics.setVitorias(vitorias);
         playerStatistics.setDerrotas(derrotas);
         playerStatistics.setTaxaVitoria( (float) vitorias/numeroPartidas);
-        playerStatistics.setMediaKills(kills/numeroPartidas);
-        playerStatistics.setMediaDeaths(deaths/numeroPartidas);
-        playerStatistics.setMediaAssists(assists/numeroPartidas);
+        playerStatistics.setMediaKills( (float) kills/numeroPartidas);
+        playerStatistics.setMediaDeaths( (float) deaths/numeroPartidas);
+        playerStatistics.setMediaAssists( (float) assists/numeroPartidas);
+        playerStatistics.setTotalKills(kills);
+        playerStatistics.setTotalDeaths(deaths);
+        playerStatistics.setTotalAssists(assists);
+        playerStatistics.setMelhorKda(melhorKda);
+        playerStatistics.setPiorKda(piorKda);
+        playerStatistics.setMelhorPartida(melhorPartida);
+        playerStatistics.setPiorPartida(piorPartida);
+        playerStatistics.setWinstreakBest(winStreakBest);
+        playerStatistics.setWinstreakCurrent(winStreakCurrent);
+        playerStatistics.setCampeaoMaisJogadoNome(campeaoMaisJogado);
+        playerStatistics.setCampeaoMaisJogadoQuantidade(campeaoMaisJogadoQuantidade);
+        playerStatistics.setCampeaoMaisJogadoVitorias(campeaoMaisJogadoVitorias);
+
         //endregion
 
         return playerStatistics;
