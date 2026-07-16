@@ -2,6 +2,7 @@ package io.github.soapiesophia.soapieleagueanalytics.controller;
 
 import io.github.soapiesophia.soapieleagueanalytics.dto.HistoryEntry;
 import io.github.soapiesophia.soapieleagueanalytics.dto.Participant;
+import io.github.soapiesophia.soapieleagueanalytics.dto.PlayerStatistics;
 import io.github.soapiesophia.soapieleagueanalytics.service.AnalyticsService;
 import org.apache.coyote.Request;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +22,7 @@ public class RiotController {
             @RequestParam String nome,
             @RequestParam String tag,
             @RequestParam int numero){
-        return analyticsService.buscarEstatisticasPartidas(nome, tag, numero);
+        return analyticsService.buscarDadosPartidas(nome, tag, numero);
     }
 
     @GetMapping("/history/champion")
@@ -32,5 +33,13 @@ public class RiotController {
             @RequestParam int numero,
             @RequestParam String campeao){
         return analyticsService.buscarPartidasPorCampeaoPresente(nome,tag,start,numero,campeao);
+    }
+
+    @GetMapping("/history/statistics")
+    public PlayerStatistics estatisticas(
+            @RequestParam String nome,
+            @RequestParam String tag,
+            @RequestParam int numero){
+        return analyticsService.calcularEstatisticas(nome, tag, numero);
     }
 }

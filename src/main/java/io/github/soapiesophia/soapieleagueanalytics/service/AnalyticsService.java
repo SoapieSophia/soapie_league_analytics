@@ -1,9 +1,6 @@
 package io.github.soapiesophia.soapieleagueanalytics.service;
 
-import io.github.soapiesophia.soapieleagueanalytics.dto.HistoryEntry;
-import io.github.soapiesophia.soapieleagueanalytics.dto.MatchInfo;
-import io.github.soapiesophia.soapieleagueanalytics.dto.MatchResponse;
-import io.github.soapiesophia.soapieleagueanalytics.dto.Participant;
+import io.github.soapiesophia.soapieleagueanalytics.dto.*;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -20,8 +17,8 @@ public class AnalyticsService {
         this.riotApiService = riotApiService;
     }
 
-    public HistoryEntry[] buscarEstatisticasPartidas(String nome, String tag){
-        return buscarEstatisticasPartidas(nome, tag, 3);
+    public HistoryEntry[] buscarDadosPartidas(String nome, String tag){
+        return buscarDadosPartidas(nome, tag, TAMANHO_LOTE);
     }
 
     public HistoryEntry criarHistoryEntry(Participant participant, MatchInfo info){
@@ -37,7 +34,7 @@ public class AnalyticsService {
         return entry;
     }
 
-    public HistoryEntry[] buscarEstatisticasPartidas(String nome, String tag, int numeroPartidas){
+    public HistoryEntry[] buscarDadosPartidas(String nome, String tag, int numeroPartidas){
         Participant target = null;
         String targetPuuid = riotApiService.buscarJogador(nome, tag).getPuuid();
         String[] partidas = riotApiService.buscarPartidas(targetPuuid, numeroPartidas);
@@ -93,5 +90,41 @@ public class AnalyticsService {
             indicePartida++;
         }
         return historico;
+    }
+
+    public PlayerStatistics calcularEstatisticas(String nome, String tag){
+        return calcularEstatisticas(nome, tag, TAMANHO_LOTE);
+    }
+
+    public PlayerStatistics calcularEstatisticas(String nome, String tag, int numeroPartidas){
+        PlayerStatistics playerStatistics = new PlayerStatistics();
+        HistoryEntry[] historico = buscarDadosPartidas(nome, tag, numeroPartidas);
+        int vitorias = 0;
+        int derrotas = 0;
+        float kills = 0;
+        float deaths = 0;
+        float assists = 0;
+        for (HistoryEntry partida : historico){
+            if (partida.isWin()){
+                vitorias++;
+            }
+            else{
+                derrotas++;
+            }
+            kills += partida.getKills();
+            deaths += partida.getDeaths();
+            assists += partida.getAssists();
+        }
+        //region Sets Player Statistics
+        playerStatistics.setPartidasAnalisadas(historico.length);
+        playerStatistics.setVitorias(vitorias);
+        playerStatistics.setDerrotas(derrotas);
+        playerStatistics.setTaxaVitoria( (float) vitorias/numeroPartidas);
+        playerStatistics.setMediaKills(kills/numeroPartidas);
+        playerStatistics.setMediaDeaths(deaths/numeroPartidas);
+        playerStatistics.setMediaAssists(assists/numeroPartidas);
+        //endregion
+
+        return playerStatistics;
     }
 }
