@@ -42,4 +42,14 @@ public class RiotController {
             @RequestParam int numero){
         return analyticsService.calcularEstatisticas(nome, tag, numero);
     }
+
+    @GetMapping("/history/gameMode")
+    public PlayerStatistics historicoGamemode(
+            @RequestParam String nome,
+            @RequestParam String tag,
+            @RequestParam int start,
+            @RequestParam int numero,
+            @RequestParam String gameMode){
+        return analyticsService.calcularEstatisticas(nome, tag, start, numero, gameMode);
+    }
 }
