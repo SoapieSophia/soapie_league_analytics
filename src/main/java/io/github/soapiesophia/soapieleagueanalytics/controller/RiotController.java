@@ -1,10 +1,8 @@
 package io.github.soapiesophia.soapieleagueanalytics.controller;
 
 import io.github.soapiesophia.soapieleagueanalytics.dto.HistoryEntry;
-import io.github.soapiesophia.soapieleagueanalytics.dto.Participant;
 import io.github.soapiesophia.soapieleagueanalytics.dto.PlayerStatistics;
 import io.github.soapiesophia.soapieleagueanalytics.service.AnalyticsService;
-import org.apache.coyote.Request;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,10 +16,10 @@ public class RiotController {
     public RiotController(AnalyticsService analyticsService) {this.analyticsService = analyticsService;}
 
     @GetMapping("/history")
-    public HistoryEntry[] partidas(
+    public List<HistoryEntry> partidas(
             @RequestParam String nome,
             @RequestParam String tag,
-            @RequestParam int numero){
+            @RequestParam(defaultValue = "20") int numero){
         return analyticsService.buscarDadosPartidas(nome, tag, numero);
     }
 
@@ -29,27 +27,19 @@ public class RiotController {
     public List<HistoryEntry> partidasPorCampeao(
             @RequestParam String nome,
             @RequestParam String tag,
-            @RequestParam int start,
-            @RequestParam int numero,
+            @RequestParam(defaultValue = "0") int start,
+            @RequestParam(defaultValue = "5") int numero,
             @RequestParam String campeao){
-        return analyticsService.buscarPartidasPorCampeaoPresente(nome,tag,start,numero,campeao);
+        return analyticsService.buscarDadosPartidasPorCampeaoPresente(nome,tag,start,numero,campeao);
     }
 
     @GetMapping("/history/statistics")
-    public PlayerStatistics estatisticas(
-            @RequestParam String nome,
-            @RequestParam String tag,
-            @RequestParam int numero){
-        return analyticsService.calcularEstatisticas(nome, tag, numero);
-    }
-
-    @GetMapping("/history/gameMode")
     public PlayerStatistics historicoGamemode(
             @RequestParam String nome,
             @RequestParam String tag,
-            @RequestParam int start,
-            @RequestParam int numero,
-            @RequestParam String gameMode){
+            @RequestParam(defaultValue = "0") int start,
+            @RequestParam(defaultValue = "20") int numero,
+            @RequestParam(required = false) String gameMode){
         return analyticsService.calcularEstatisticas(nome, tag, start, numero, gameMode);
     }
 }

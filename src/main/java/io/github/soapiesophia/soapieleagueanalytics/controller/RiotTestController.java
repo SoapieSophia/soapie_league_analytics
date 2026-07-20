@@ -1,8 +1,6 @@
 package io.github.soapiesophia.soapieleagueanalytics.controller;
 
 import io.github.soapiesophia.soapieleagueanalytics.dto.AccountResponse;
-import io.github.soapiesophia.soapieleagueanalytics.dto.MatchResponse;
-import io.github.soapiesophia.soapieleagueanalytics.dto.Participant;
 import io.github.soapiesophia.soapieleagueanalytics.service.RiotApiService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;

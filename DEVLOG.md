@@ -58,3 +58,23 @@
 - Adicionei um limite máximo de partidas analisadas para evitar excesso de requisições e lidar melhor com as limitações da Development API Key da Riot.
 - Investiguei o erro HTTP 429 (Too Many Requests) e implementei uma estratégia inicial de tratamento para informar ao usuário quando o limite de requisições da API for atingido.
 - Aprendi melhor como equilibrar funcionalidades desejadas com restrições de APIs externas, considerando desempenho, limites de uso e experiência do usuário.
+
+## Dia 9
+- Criei o DTO `PlayerStatistics` para representar estatísticas agregadas de um jogador ao longo de múltiplas partidas.
+- Implementei o cálculo de vitórias, derrotas, taxa de vitória, médias de kills, deaths e assists a partir do histórico de partidas gerado pela aplicação.
+- Adicionei o cálculo do KDA médio, separando a lógica de apresentação dos dados e os valores utilizados internamente.
+- Reutilizei o histórico estruturado de partidas como base para gerar estatísticas, mantendo separadas as responsabilidades de consulta à Riot API e processamento dos dados.
+- Completei a primeira versão do endpoint de estatísticas: informar um Riot ID → obter o histórico de partidas → calcular estatísticas agregadas → retornar um resumo do desempenho do jogador.
+
+## Dia 10
+- Expandi o sistema de estatísticas do jogador adicionando métricas mais detalhadas a partir do histórico de partidas, incluindo melhor e pior KDA, sequência de vitórias e totais de kills, deaths e assists.
+- Aprendi a utilizar estruturas de chave e valor Map para agrupar informações durante a análise de dados, evitando múltiplas iterações desnecessárias sobre o histórico.
+- Implementei a análise de campeões utilizados pelo jogador, utilizando Map para contabilizar a quantidade de partidas por campeão e identificar o campeão mais jogado dentro do limite de partidas analisadas.
+- Adicionei o cálculo de vitórias com o campeão mais jogado, permitindo comparar a frequência de uso do campeão com o desempenho obtido nele.
+- Revisei a estrutura do AnalyticsService, identificando oportunidades de refatoração e mantendo a separação entre consulta de dados externos, transformação em DTOs e cálculo de estatísticas.
+
+## Dia 11
+- Ampliei a flexibilidade das consultas de histórico e estatísticas, permitindo filtrar partidas por modo de jogo sem duplicar a lógica de processamento já existente.
+- Refatorei a API do `AnalyticsService` utilizando sobrecarga de métodos para oferecer diferentes níveis de configuração, mantendo uma única implementação principal da lógica.
+- Padronizei os métodos de busca de partidas presentes em `AnalyticsService`.
+- Documentei os endpoints disponíveis no `README`, tornando a utilização da API mais clara para futuros usuários e colaboradores.
