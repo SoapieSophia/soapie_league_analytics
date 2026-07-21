@@ -19,8 +19,11 @@ public class RiotController {
     public List<HistoryEntry> partidas(
             @RequestParam String nome,
             @RequestParam String tag,
-            @RequestParam(defaultValue = "20") int numero){
-        return analyticsService.buscarDadosPartidas(nome, tag, numero);
+            @RequestParam(defaultValue = "0") int start,
+            @RequestParam(defaultValue = "20") int numero,
+            @RequestParam(required = false) String gameMode,
+            @RequestParam(required = false) String campeao){
+        return analyticsService.buscarDadosPartidas(nome, tag, start, numero, gameMode, campeao);
     }
 
     @GetMapping("/history/champion")
@@ -39,7 +42,8 @@ public class RiotController {
             @RequestParam String tag,
             @RequestParam(defaultValue = "0") int start,
             @RequestParam(defaultValue = "20") int numero,
-            @RequestParam(required = false) String gameMode){
-        return analyticsService.calcularEstatisticas(nome, tag, start, numero, gameMode);
+            @RequestParam(required = false) String gameMode,
+            @RequestParam(required = false) String campeao){
+        return analyticsService.calcularEstatisticas(nome, tag, start, numero, gameMode, campeao);
     }
 }

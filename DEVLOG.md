@@ -78,3 +78,9 @@
 - Refatorei a API do `AnalyticsService` utilizando sobrecarga de métodos para oferecer diferentes níveis de configuração, mantendo uma única implementação principal da lógica.
 - Padronizei os métodos de busca de partidas presentes em `AnalyticsService`.
 - Documentei os endpoints disponíveis no `README`, tornando a utilização da API mais clara para futuros usuários e colaboradores.
+
+## Dia 12
+- Corrigi a funcionalidade de `winStreakCurrent`, que previamente não funcionava.
+- Corrigi a paginação de partidas em `buscarDadosPartidas`. Previamente, se `numeroPartidas` fosse menor que 20, o método não analisaria as partidas entre `numeroPartidas` e 20, fazendo com que históricos fossem montados erroneamente, o que também implicava em estatísticas errôneas.
+- Adicionei filtro por campeão jogado a `buscarDadosPartidas` e `calcularEstatísticas`.
+- Refatorei código que iterava por partidas/participantes em `buscarDadosPartidas`, eliminando casos redundantes.

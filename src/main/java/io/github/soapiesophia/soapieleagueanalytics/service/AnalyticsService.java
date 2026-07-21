@@ -54,11 +54,15 @@ public class AnalyticsService {
     }
 
     public List<HistoryEntry> buscarDadosPartidas(String nome, String tag, int start, int numeroPartidas, String gameMode){
+        return buscarDadosPartidas(nome, tag, start, numeroPartidas, gameMode, null);
+    }
+
+    public List<HistoryEntry> buscarDadosPartidas(String nome, String tag, int start, int numeroPartidas, String gameMode, String campeao){
         int indicePartida = 0;
         int partidasAnalisadas = 0;
 
         String targetPuuid = riotApiService.buscarJogador(nome, tag).getPuuid();
-        String[] partidas = riotApiService.buscarPartidas(targetPuuid, start, numeroPartidas);
+        String[] partidas = riotApiService.buscarPartidas(targetPuuid, start, TAMANHO_LOTE);
         List<HistoryEntry> historico = new ArrayList<>();
 
         while (historico.size() < numeroPartidas && partidasAnalisadas < LIMITE_BUSCA_PARTIDAS){
@@ -71,12 +75,19 @@ public class AnalyticsService {
             partidasAnalisadas++;
             MatchInfo matchInfo = matchResponse.getInfo();
             Participant[] participantes = matchResponse.getInfo().getParticipants();
+            if (gameMode != null && !matchInfo.getGameMode().equals(gameMode)){
+                indicePartida++;
+                continue;
+            }
             for (Participant participante : participantes) {
-                if (participante.getPuuid().equals(targetPuuid) && (gameMode == null || matchInfo.getGameMode().equals(gameMode))) {
+                if (!participante.getPuuid().equals(targetPuuid)) {
+                    continue;
+                }
+                if (campeao == null || participante.getChampionName().equals(campeao)){
                     HistoryEntry entry = criarHistoryEntry(participante, matchInfo);
                     historico.add(entry);
-                    break;
                 }
+                break;
             }
             indicePartida++;
         }
@@ -84,13 +95,13 @@ public class AnalyticsService {
     }
 
     // Método feito para buscar por partida que contenha dado campeão, seja esse campeão pilotado
-    // por qualquer jogador da partida, retornando as estatísticas do participante que o pilotou.
+    // por qualquer jogador da partida, retornando os dados do participante que o pilotou.
     public List<HistoryEntry> buscarDadosPartidasPorCampeaoPresente(String nome, String tag, int start, int numeroPartidas, String campeao){
         int indicePartida = 0;
         int partidasAnalisadas = 0;
 
         String targetPuuid = riotApiService.buscarJogador(nome, tag).getPuuid();
-        String[] partidas = riotApiService.buscarPartidas(targetPuuid, start, numeroPartidas);
+        String[] partidas = riotApiService.buscarPartidas(targetPuuid, start, TAMANHO_LOTE);
         List<HistoryEntry> historico = new ArrayList<>();
 
         while (historico.size() < numeroPartidas && partidasAnalisadas < LIMITE_BUSCA_PARTIDAS){
@@ -127,9 +138,13 @@ public class AnalyticsService {
         return calcularEstatisticas(nome, tag, start, numeroPartidas, null);
     }
 
-    public PlayerStatistics calcularEstatisticas(String nome, String tag, int start, int numeroPartidas, String gameMode){
+    public PlayerStatistics calcularEstatisticas(String nome, String tag, int start, int numeroPartidas,String gameMode){
+        return calcularEstatisticas(nome, tag, start, numeroPartidas, gameMode, null);
+    }
+
+    public PlayerStatistics calcularEstatisticas(String nome, String tag, int start, int numeroPartidas, String gameMode, String campeao){
         PlayerStatistics playerStatistics = new PlayerStatistics();
-        List<HistoryEntry> historico = buscarDadosPartidas(nome, tag, start, numeroPartidas, gameMode);
+        List<HistoryEntry> historico = buscarDadosPartidas(nome, tag, start, numeroPartidas, gameMode, campeao);
         HistoryEntry melhorPartida = null;
         HistoryEntry piorPartida = null;
         Map<String, Integer> championsGames = new HashMap<>();
@@ -142,18 +157,24 @@ public class AnalyticsService {
         float melhorKda = Float.NEGATIVE_INFINITY;
         float piorKda = Float.POSITIVE_INFINITY;
         int winStreakCurrent = 0;
+        int winStreakTemp = 0;
         int winStreakBest = 0;
+        boolean winStreakCounting = true;
         for (HistoryEntry partida : historico){
             if (partida.isWin()){
                 vitorias++;
-                winStreakCurrent++;
-                if (winStreakCurrent > winStreakBest){
-                    winStreakBest = winStreakCurrent;
+                winStreakTemp++;
+                if (winStreakCounting) {
+                    winStreakCurrent++;
+                }
+                if (winStreakTemp > winStreakBest){
+                    winStreakBest = winStreakTemp;
                 }
             }
             else{
                 derrotas++;
-                winStreakCurrent = 0;
+                winStreakCounting = false;
+                winStreakTemp = 0;
             }
             kills += partida.getKills();
             deaths += partida.getDeaths();
